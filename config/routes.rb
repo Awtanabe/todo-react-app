@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   get 'todos/index'
   root 'todos#index'
-  resources :todos, only: %w[index create] do
+  resources :todos, only: %w[index create update] do
     collection do
       get '/get_todos', to: 'todos#todos'
     end
