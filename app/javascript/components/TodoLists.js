@@ -1,11 +1,12 @@
 import React from "react"
+import TodoList from './TodoList'
 
 class TodoLists extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       todolists: [],
-      inputs: {title: '', description: '',auto_done: false},
+      inputs: {id: null,title: '', description: '',auto_done: false},
       selectedValue: false,
       ediable: {}
     }
@@ -45,7 +46,12 @@ class TodoLists extends React.Component {
       credentials: 'include',
       body: formData
     }).then((res) => console.log("aa"))
-    
+
+    this.state.inputs.id = this.state.todolists[this.state.todolists.length - 1].id + 1
+  
+    const newTodo = [...this.state.todolists, this.state.inputs]
+
+    this.setState({todolists: newTodo,inputs: {id: null, title: '', description: '',auto_done: false } })
   }
 
   handleUpdate(todo) {
@@ -69,10 +75,27 @@ class TodoLists extends React.Component {
     this.clearEdiable()
   }
 
+  handleDelete(todo) {
+    fetch(`/todos/${todo.id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    }).then((res) => console.log(res.status))
+
+    var re = Object.assign([], this.state.todolists)
+
+    var target = re.filter((r)=> r.id !== todo.id)
+    target
+
+    this.setState({todolists: target})
+
+    this.clearEdiable()
+  }
+
   ShowTodo(todo) {
     return (
       <li>
       todo: {todo.title} <button onClick={()=> this.toggleEdiable(todo)}>編集</button>
+                        <button onClick={()=> this.handleDelete(todo)}>削除</button>
       </li>
     )
 
@@ -120,7 +143,6 @@ class TodoLists extends React.Component {
   render () {
     const {inputs, selectedValue, todolists, ediable} = this.state
     const selectStatus = selectedValue ? 'checked' : ''
-  
     return (
       <div className="container">
         <div className="row text-center">
@@ -161,6 +183,7 @@ class TodoLists extends React.Component {
             </ul>
           </div>
         </div>
+
       </div>
     );
   }
