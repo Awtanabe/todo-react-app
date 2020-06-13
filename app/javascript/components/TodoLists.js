@@ -7,6 +7,10 @@ class TodoLists extends React.Component {
     this.state = {
       todolists: [],
       inputs: {id: null,title: '', description: '',auto_done: false},
+      errors: {
+        title: "",
+        description: ""
+      },
       selectedValue: false,
       ediable: {}
     }
@@ -36,6 +40,10 @@ class TodoLists extends React.Component {
   }
 
   handleSave() {
+    const errorResult = this.validateInputs(this.state.inputs)
+  
+    if (errorResult.title == "titleにエラーあり" ||  errorResult.description == "descriptionにエラーあり" ) {return}
+   
     const formData = new FormData();
     formData.append('title', this.state.inputs.title)
     formData.append('description', this.state.inputs.description)
@@ -51,7 +59,7 @@ class TodoLists extends React.Component {
   
     const newTodo = [...this.state.todolists, this.state.inputs]
 
-    this.setState({todolists: newTodo,inputs: {id: null, title: '', description: '',auto_done: false } })
+    this.setState({todolists: newTodo,inputs: {id: null, title: '', description: '',auto_done: false },errors: errorResult })
   }
 
   handleUpdate(todo) {
@@ -140,9 +148,32 @@ class TodoLists extends React.Component {
     this.setState({ediable: {}})
   }
 
+  validateInputs(inputs) {
+
+     const errors = Object.assign([], this.state.errors)
+
+     errors.title = ""
+     errors.description = ""
+     debugger
+     if (inputs.title == "" ){ 
+        errors.title = "titleにエラーあり"
+     }
+     if (inputs.description == "" ){ 
+       errors.description = "descriptionにエラーあり"
+    }
+
+    if ( errors.title == "titleにエラーあり" || errors.description == "descriptionにエラーあり" ){
+      this.setState({errors})
+      return errors
+    }  
+    return errors
+  }
+
   render () {
-    const {inputs, selectedValue, todolists, ediable} = this.state
+    const {inputs, selectedValue, todolists, ediable, errors} = this.state
     const selectStatus = selectedValue ? 'checked' : ''
+    console.log(inputs.title)
+    
     return (
       <div className="container">
         <div className="row text-center">
@@ -154,12 +185,14 @@ class TodoLists extends React.Component {
                 <label>
                    タイトル
                   <input type="text" name="title" value={inputs.title} className="form-control" onChange={(e) => this.handleChangeInputs(e)}/>
+                  <span className="error-message">{errors.title}</span>
                 </label>
               </div>
               <div className="form-group">
                 <label>
                 description
                   <input type="text" name="description" value={inputs.description} className="form-control" onChange={(e) => this.handleChangeInputs(e)}/>
+                  <span className="error-message">{errors.description}</span>
                 </label>
               </div>
               <div className="form-group">
